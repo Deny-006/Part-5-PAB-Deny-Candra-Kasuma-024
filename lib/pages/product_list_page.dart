@@ -4,55 +4,97 @@ import '../models/product.dart';
 import '../models/cart_model.dart';
 import 'cart_page.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final products = [
-      Product(
+  State<ProductListPage> createState() => _ProductListPageState();
+}
+
+class _ProductListPageState extends State<ProductListPage> {
+  String selectedCategory = 'All';
+  String searchQuery = '';
+
+  final List<Map<String, dynamic>> products = [
+    {
+      "product": Product(
         id: '1',
-        name: 'Laptop Gaming',
-        price: 15000000,
-        emoji: '💻',
-        description: 'Laptop gaming performa tinggi',
+        name: 'Gaming Keyboard RGB',
+        price: 850000,
+        emoji: '⌨️',
+        description: 'Mechanical keyboard RGB',
       ),
-      Product(
+      "category": "Accessories",
+    },
+    {
+      "product": Product(
         id: '2',
-        name: 'Smartphone Pro',
-        price: 8000000,
-        emoji: '📱',
-        description: 'Smartphone flagship terbaru',
+        name: 'Gaming Mouse Pro',
+        price: 650000,
+        emoji: '🖱️',
+        description: 'Mouse gaming presisi tinggi',
       ),
-      Product(
+      "category": "Accessories",
+    },
+    {
+      "product": Product(
         id: '3',
-        name: 'Wireless Headphones',
-        price: 1500000,
-        emoji: '🎧',
-        description: 'Headphones noise-cancelling',
+        name: 'Gaming Chair',
+        price: 2500000,
+        emoji: '🪑',
+        description: 'Kursi gaming ergonomis',
       ),
-      Product(
+      "category": "Furniture",
+    },
+    {
+      "product": Product(
         id: '4',
-        name: 'Smart Watch',
-        price: 3000000,
-        emoji: '⌚',
-        description: 'Smartwatch dengan health tracking',
+        name: 'Ultra Wide Monitor',
+        price: 4500000,
+        emoji: '🖥️',
+        description: 'Monitor 34 inch 144Hz',
       ),
-      Product(
+      "category": "Monitor",
+    },
+    {
+      "product": Product(
         id: '5',
-        name: 'Camera DSLR',
-        price: 12000000,
-        emoji: '📷',
-        description: 'Kamera DSLR profesional',
+        name: 'Streaming Microphone',
+        price: 1200000,
+        emoji: '🎙️',
+        description: 'Microphone untuk streaming',
       ),
-      Product(
+      "category": "Audio",
+    },
+    {
+      "product": Product(
         id: '6',
-        name: 'Tablet Pro',
-        price: 7000000,
-        emoji: '📟',
-        description: 'Tablet untuk produktivitas',
+        name: 'Gaming Headset',
+        price: 900000,
+        emoji: '🎧',
+        description: 'Headset surround sound',
       ),
-    ];
+      "category": "Audio",
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = ['All', 'Accessories', 'Furniture', 'Monitor', 'Audio'];
+
+    final filteredProducts = products.where((item) {
+      final product = item["product"] as Product;
+      final category = item["category"] as String;
+
+      final matchesCategory =
+          selectedCategory == 'All' || category == selectedCategory;
+
+      final matchesSearch = product.name.toLowerCase().contains(
+        searchQuery.toLowerCase(),
+      );
+
+      return matchesCategory && matchesSearch;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -92,7 +134,6 @@ class ProductListPage extends StatelessWidget {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
-                            fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -105,97 +146,105 @@ class ProductListPage extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: products.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.72,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemBuilder: (context, index) {
-          final product = products[index];
-
-          return Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurple.shade50,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(12),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        product.emoji,
-                        style: const TextStyle(fontSize: 60),
-                      ),
-                    ),
-                  ),
+      body: Column(
+        children: [
+          // 🔎 SEARCH BAR
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search product...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Text(
-                        product.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Rp ${product.price.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            context.read<CartModel>().addItem(product);
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
+            ),
+          ),
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${product.name} ditambahkan ke cart!',
-                                ),
-                                duration: const Duration(seconds: 1),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.add_shopping_cart, size: 16),
-                          label: const Text(
-                            'Add',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+          // 📂 CATEGORY FILTER
+          SizedBox(
+            height: 40,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final isSelected = selectedCategory == category;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: ChoiceChip(
+                    label: Text(category),
+                    selected: isSelected,
+                    onSelected: (_) {
+                      setState(() {
+                        selectedCategory = category;
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // 📋 PRODUCT LIST
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: filteredProducts.length,
+              itemBuilder: (context, index) {
+                final product = filteredProducts[index]["product"] as Product;
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: ListTile(
+                    leading: Text(
+                      product.emoji,
+                      style: const TextStyle(fontSize: 28),
+                    ),
+                    title: Text(
+                      product.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(product.description),
+                        Text(
+                          'Rp ${product.price.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.add_shopping_cart),
+                      onPressed: () {
+                        context.read<CartModel>().addItem(product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${product.name} ditambahkan!'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
